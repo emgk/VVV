@@ -84,6 +84,7 @@ function get_primary_host() {
 function vvv_provision_site_nginx_config() {
   local SITE_NAME=$1
   local SITE_NGINX_FILE=$2
+  local NGINX_CONFIGS=$(find "${VM_DIR}" -maxdepth 3 -name 'vvv-nginx.conf');
   if [[ -z $NGINX_CONFIGS ]] ; then
       vvv_error " ! Error: No nginx config was found, VVV will not know how to serve this site"
       exit 1
