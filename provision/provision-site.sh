@@ -84,11 +84,6 @@ function get_primary_host() {
 function vvv_provision_site_nginx_config() {
   local SITE_NAME=$1
   local SITE_NGINX_FILE=$2
-  local NGINX_CONFIGS=$(find "${VM_DIR}" -maxdepth 3 -name 'vvv-nginx.conf');
-  if [[ -z $NGINX_CONFIGS ]] ; then
-      vvv_error " ! Error: No nginx config was found, VVV will not know how to serve this site"
-      exit 1
-  fi
   local DEST_NGINX_FILE=${SITE_NGINX_FILE//\/srv\/www\//}
   local DEST_NGINX_FILE=${DEST_NGINX_FILE//\//\-}
   local DEST_NGINX_FILE=${DEST_NGINX_FILE/%-vvv-nginx.conf/}
@@ -311,9 +306,10 @@ function vvv_provision_site_nginx() {
     vvv_warn "   - ${VM_DIR}/vvv-nginx.conf"
     vvv_warn " * VVV will search 3 folders down to find an Nginx config, please be patient..."
     local NGINX_CONFIGS=$(find "${VM_DIR}" -maxdepth 3 -name 'vvv-nginx.conf');
-    if [[ -z $NGINX_CONFIGS ]] ; then
-      vvv_error " ! Error: No nginx config was found, VVV will not know how to serve this site"
-      exit 1
+    if [[ -z $NGINX_CONFIGS ]] ; then   
+      vvv_warn " * VVV didn't found any Nginx config file, it will use a fallback config file"
+      cp -f "/srv/provision/core/nginx/config/sites/fallback.conf" "$SITE_CONFIG_FILE"
+      vvv_provision_site_nginx_config "${SITE}" "${SITE_CONFIG_FILE}"
     else
       vvv_warn " * VVV found Nginx config files in subfolders, move these files to the expected locations to avoid these warnings."
       for SITE_CONFIG_FILE in $NGINX_CONFIGS; do
